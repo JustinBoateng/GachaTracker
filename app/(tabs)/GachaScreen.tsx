@@ -186,7 +186,7 @@ export default function GachaScreen(){
                         <KeyboardAvoidingView
                         behavior="padding"
                         style={{
-                            paddingHorizontal: 16, paddingBottom: 24
+                            //paddingHorizontal: 16, paddingBottom: 24
                         }}>
 
                             {/*Actual Modal Menu*/}
@@ -196,127 +196,318 @@ export default function GachaScreen(){
                                 backgroundColor: "#ffff00",
                                 borderTopLeftRadius: 20,
                                 borderTopRightRadius: 20,
-                                padding: 20,
-                                gap: 12
+                                //padding: 20,
+                                //gap: 12,
+                                height: "55%"
+
+
                             }}>
                                 {/*Title of the Menu*/}
-                                <View><Text>Add Source</Text></View>
-
-                                {/*Name Textbox Input*/}
-                                <View>
-                                    <Text>Name</Text>
-                                    <TextInput
-                                        value={sourceName}
-                                        onChangeText={setSourceName}
-                                        placeholder="Set the Name of the Source of Currency"
-                                        returnKeyType="done" //What does this mean?
-                                        onSubmitEditing={()=>alert("Name Set")}
-                                    />
-                                </View>
-
-                                {/*TimeFrame Textbox Input*/}
-                                <View>
-                                    <Text>Timeframe</Text>
-                                    <TextInput
-                                        value={sourceName}
-                                        onChangeText={setSourceName}
-                                        placeholder="Set the TimeFrame"
-                                        returnKeyType="done" //What does this mean?
-                                        onSubmitEditing={()=>alert("TimeFrame Set")}
-                                    />
-                                </View>
-
-
-                                {/*From-To Custom TimeFrame*/}
-                                <View style={{flex:1, flexDirection: "row"}}>
-                                    {/*From*/}
-                                    <View>
-                                        <Text>From</Text>
-                                        <TextInput
-                                            value={sourceName}
-                                            onChangeText={setSourceName}
-                                            placeholder="Set the TimeFrame"
-                                            returnKeyType="done" //What does this mean?
-                                            onSubmitEditing={()=>alert("TimeFrame Set")}
-                                        />
-                                    </View>
-
-                                    {/*To*/}
-                                    <View>
-                                        <Text>To</Text>
-                                        <TextInput
-                                            value={sourceName}
-                                            onChangeText={setSourceName}
-                                            placeholder="Set the TimeFrame"
-                                            returnKeyType="done" //What does this mean?
-                                            onSubmitEditing={()=>alert("TimeFrame Set")}
-                                        />
-                                    </View>
-                                </View>
-
-
-                                {/*Type-Amount Sector*/}
-                                <View style={{flex:1, flexDirection: "row"}}>
-                                    {/*Type*/}
-                                    <View>
-                                        <Text>TYPE</Text>
-                                        <Pressable style={{
-                                            backgroundColor: "#ffffff",
-                                            width:"90%",
-                                            height:"10%"
-                                        }}>
-
-                                        </Pressable>
-                                    </View>{/*Type*/}
-
-
-                                    {/*Amount, Obtained, Preset*/}
-                                    <View>
-                                        <Text>AMOUNT</Text>
-                                        <TextInput
-                                            value={sourceName}
-                                            onChangeText={setSourceName}
-                                            placeholder="0"
-                                            returnKeyType="done" //What does this mean?
-                                            onSubmitEditing={()=>alert("TimeFrame Set")}
-                                        />
-
-                                        {/*Obtained and Preset Checkboxes*/}
-                                        <View style={{flex:1, flexDirection:"row"}}>
-                                            <Text>OBTAINED</Text>
-                                            <Checkbox
-                                            style={{margin:8}}
-                                            value={wasObtained}
-                                            onValueChange={setWasObtained}/>
-                                        </View>
-                                        <View style={{flex:1, flexDirection:"row"}}>
-                                            <Text>PRESET</Text>
-                                            <Checkbox
-                                            style={{margin:8}}
-                                            value={wasObtained}
-                                            onValueChange={setWasObtained}/>
-
-                                        </View>
-                                    </View>{/*Amount Obtained Preset Mini Menu*/}
-
-                                </View>
-
-                                {/*Back / Enter Buttons*/}
                                 <View style={{
+                                    backgroundColor: "#ffffff",
+                                    borderColor: "#000000",
+                                    borderTopWidth: 10,
+                                    borderBottomWidth: 10,
                                     flex: 1,
-                                    flexDirection:"row",
-                                    justifyContent: "space-between",
-                                    backgroundColor: "#00ff00"
-                                }}>
-                                    <Pressable onPress={()=> alert("Back")}>
-                                        <Text> BACK </Text>
-                                    </Pressable>
-                                    <Pressable onPress={()=> alert("Next")}>
-                                        <Text> NEXT </Text>
-                                    </Pressable>
+                                    width: "100%",
+                                    marginBottom: 10
 
+                                }}>
+                                    <Text style={{
+                                        fontSize: 30,
+                                        fontWeight:"bold",
+                                        paddingHorizontal: 5
+                                    }}>ADD SOURCE</Text>
                                 </View>
 
+                                {/*Adding padding to everything below "Add Source*/}
+                                <View style={{
+                                    flex: 5,
+                                    paddingHorizontal: 20,
+                                    backgroundColor:"#FF00fF",
+                                    width:"100%"
+                                }}>
+                                    {/*Name Textbox Input*/}
+                                    <View style={{
+                                        backgroundColor:"#abcdab"
+                                    }}>
+                                        <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15
+                                        }}>NAME</Text>
+                                        <TextInput
+                                            value={sourceName}
+                                            onChangeText={setSourceName}
+                                            placeholder="Set the Name of the Source of Currency"
+                                            returnKeyType="done" //What does this mean?
+                                            onSubmitEditing={()=>alert("Name Set")}
+                                            style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5
+                                            }}
+                                        />
+                                    </View>
+
+                                    {/*TimeFrame Textbox Input*/}
+                                    <View style={{
+                                        backgroundColor:"#2ba12b"
+                                    }}>
+                                        <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15
+                                        }}>Timeframe</Text>
+                                        <TextInput
+                                            value={sourceName}
+                                            onChangeText={setSourceName}
+                                            placeholder="Set the TimeFrame"
+                                            returnKeyType="done" //What does this mean?
+                                            onSubmitEditing={()=>alert("TimeFrame Set")}
+                                            style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5
+                                            }}
+
+                                        />
+                                    </View>
+
+
+                                    {/*From-To Custom TimeFrame*/}
+                                    <View style={{
+                                        backgroundColor:"#6cc23e",
+                                        //flex:1, 
+                                        flexDirection: "row",
+                                        justifyContent: "space-between"
+
+                                        }}>
+                                        {/*From*/}
+                                        <View>
+                                            <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15
+                                            }}>From</Text>
+                                            <TextInput
+                                                value={sourceName}
+                                                onChangeText={setSourceName}
+                                                placeholder="Set the TimeFrame"
+                                                returnKeyType="done" //What does this mean?
+                                                onSubmitEditing={()=>alert("TimeFrame Set")}
+                                                style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5
+                                            }}
+
+                                            />
+                                        </View>
+
+                                        {/*To*/}
+                                        <View>
+                                            <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15,
+                                            alignSelf:"flex-end"
+                                            }}>To</Text>
+                                            <TextInput
+                                                value={sourceName}
+                                                onChangeText={setSourceName}
+                                                placeholder="Set the TimeFrame"
+                                                returnKeyType="done" //What does this mean?
+                                                onSubmitEditing={()=>alert("TimeFrame Set")}
+                                                style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5
+                                            }}
+
+                                            />
+                                        </View>
+                                    </View>
+
+
+                                    {/*Type-Amount Sector*/}
+                                    <View style={{
+                                        //flex:1, 
+                                        flexDirection: "row",
+                                        justifyContent:"space-between",
+
+                                        backgroundColor:"#c2859c"
+                                    }}>
+                                        {/*Type*/}
+                                        <View style={{
+                                            flex: 1
+                                        }}>
+                                            <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15,
+                                            alignSelf: "flex-start",
+                                            //flex: 1,
+                                            backgroundColor:"#aaaaaa"
+
+                                            }}>TYPE</Text>
+
+                                            <Pressable style={{
+                                                flexDirection: "column",
+                                                backgroundColor: "#ffffff",
+                                                //width:"90%",
+                                                //height:"120%",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5,
+                                                overflow:"hidden",
+                                                alignItems: "center",
+                                                justifyContent:"center"
+                                            }}
+                                            onPress={() => alert("Select Type")}
+                                            >
+
+                                                <Image 
+                                                style={{
+                                                    width:"80%",
+                                                    height:"60%",
+                                                    resizeMode: "contain",
+                                                    
+                                                    backgroundColor:"#0000ff"
+                                                }}
+                                                source={require("@/components/TestImages/Zzz-polychrome.webp")}/>
+                                                <Text style={{
+                                                    fontSize: 20,
+                                                    //paddingTop:5,
+                                                    backgroundColor:"#FF0000",
+                                                    //alignItems:"center",
+                                                    //justifyContent:"center",
+                                                    alignSelf:"center"
+
+
+                                                }}>PREMIUM CURR</Text>
+                                            </Pressable>
+                                        </View>{/*Type*/}
+
+
+                                        {/*Amount, Obtained, Preset*/}
+                                        <View style={{
+                                            flex:1
+                                        }}>
+                                            <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15,
+                                            alignSelf: "flex-end",
+                                            backgroundColor:"#dddddd"
+                                            }}>AMOUNT</Text>
+                                            <TextInput
+                                                value={sourceName}
+                                                onChangeText={setSourceName}
+                                                placeholder="0"
+                                                returnKeyType="done" //What does this mean?
+                                                onSubmitEditing={()=>alert("TimeFrame Set")}
+                                                style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5,
+                                                alignContent:"flex-end"
+
+                                            }}
+
+                                            />
+
+                                            {/*Obtained and Preset Checkboxes*/}
+
+                                            {/*Obtained*/}
+                                            <View style={{
+                                                //flex:1, 
+                                                flexDirection:"row",
+                                                justifyContent:"flex-end",
+                                                alignItems: "center",
+                                                marginTop: 8
+                                            }}>
+                                                <Text style={{
+                                                paddingHorizontal: 8,
+                                                fontSize: 20,
+                                                //backgroundColor:"#ff0000",
+                                            
+                                                }}>OBTAINED</Text>
+                                                <Checkbox
+                                                style={{
+                                                    //margin:8,
+                                                    backgroundColor:"#FFFFFF",
+                                                    borderColor:"#000000",
+                                                    borderWidth: 2,
+                                                    borderRadius: 5
+                                                }}
+                                                value={wasObtained}
+                                                onValueChange={setWasObtained}/>
+                                            </View>
+
+                                            <View style={{
+                                                //flex:1, 
+                                                flexDirection:"row",
+                                                justifyContent: "flex-end",
+                                                alignItems: "center",
+                                                marginTop: 8
+                                            }}>
+                                                <Text style={{
+                                                paddingHorizontal: 8,
+                                                fontSize: 20,
+                                                //backgroundColor:"#00ff00"
+                                                }}>PRESET</Text>
+
+                                                <Checkbox
+                                                style={{
+                                                    backgroundColor:"#FFFFFF",
+                                                    borderColor:"#000000",
+                                                    borderWidth: 2,
+                                                    borderRadius: 5
+                                                }}
+                                                value={wasObtained}
+                                                onValueChange={setWasObtained}/>
+
+                                            </View>
+                                        </View>{/*Amount Obtained Preset Mini Menu*/}
+
+                                    </View>
+
+                                    {/*Back / Enter Buttons*/}
+                                    <View style={{
+                                        //flex: 1,
+                                        flexDirection:"row",
+                                        justifyContent: "space-evenly",
+                                        backgroundColor: "#00ff00"
+                                    }}>
+                                        <Pressable 
+                                        style={{
+                                            backgroundColor:"#FFFFFF",
+                                            borderColor:"#000000",
+                                            borderWidth: 2,
+                                            borderRadius: 5,
+                                            padding: 5
+                                        }}
+                                        onPress={()=> alert("Back")}>
+                                            <Text style={{
+                                                fontSize: 20
+                                            }}> BACK </Text>
+                                        </Pressable>
+                                        <Pressable 
+                                        style={{
+                                            backgroundColor:"#FFFFFF",
+                                            borderColor:"#000000",
+                                            borderWidth: 2,
+                                            borderRadius: 5
+                                        }}
+                                        onPress={()=> alert("Next")}>
+                                            <Text style={{
+                                                fontSize: 20
+                                            }}> ENTER </Text>
+                                        </Pressable>
+
+                                    </View>
+
+                                </View>
                             </Pressable>{/*Actual Modal Menu*/}
 
 
