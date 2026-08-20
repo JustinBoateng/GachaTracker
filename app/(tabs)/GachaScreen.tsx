@@ -178,7 +178,7 @@ export default function GachaScreen(){
                         style={{
                             flex: 1,
                             justifyContent: 'flex-end',
-                            backgroundColor:"rgba(157, 78, 230, 0.35)"
+                            backgroundColor:"rgba(14, 48, 108, 0.79)"
                         }}
                         onPress={()=> setIsAddSourceModalVisible(false)}>
 
@@ -186,6 +186,10 @@ export default function GachaScreen(){
                         <KeyboardAvoidingView
                         behavior="padding"
                         style={{
+                            //flex: 0.6,
+                            height:"80%",
+                            maxHeight:"80%",
+                            //backgroundColor:"#0000ff"
                             //paddingHorizontal: 16, paddingBottom: 24
                         }}>
 
@@ -193,12 +197,14 @@ export default function GachaScreen(){
                             <Pressable
                             onPress={(event) => event.stopPropagation()}
                             style={{
-                                backgroundColor: "#ffff00",
-                                borderTopLeftRadius: 20,
-                                borderTopRightRadius: 20,
+
+                                //backgroundColor: "#ffff00",
+                                flex:1,
+                                //borderTopLeftRadius: 20,
+                                //borderTopRightRadius: 20,
                                 //padding: 20,
                                 //gap: 12,
-                                height: "55%"
+                                //height: "55%"
 
 
                             }}>
@@ -208,10 +214,11 @@ export default function GachaScreen(){
                                     borderColor: "#000000",
                                     borderTopWidth: 10,
                                     borderBottomWidth: 10,
-                                    flex: 1,
+                                    height:"10%",
+                                    //flex: 1,
                                     width: "100%",
-                                    marginBottom: 10
-
+                                    marginBottom: 10,
+                                    justifyContent: 'flex-end'
                                 }}>
                                     <Text style={{
                                         fontSize: 30,
@@ -221,15 +228,21 @@ export default function GachaScreen(){
                                 </View>
 
                                 {/*Adding padding to everything below "Add Source*/}
-                                <View style={{
-                                    flex: 5,
+                                <ScrollView contentContainerStyle={{
+                                    flex: 1,
                                     paddingHorizontal: 20,
-                                    backgroundColor:"#FF00fF",
-                                    width:"100%"
+                                    //backgroundColor:"#FF00fF",
+                                    height:"90%",
+                                    width:"100%",
+                                    //justifyContent:"space-between",
+                                    gap: 5
+
                                 }}>
                                     {/*Name Textbox Input*/}
                                     <View style={{
-                                        backgroundColor:"#abcdab"
+                                        height: "12%",
+                                        //flex:1,
+                                        //backgroundColor:"#abcdab"
                                     }}>
                                         <Text style={{
                                             paddingHorizontal: 8,
@@ -252,7 +265,9 @@ export default function GachaScreen(){
 
                                     {/*TimeFrame Textbox Input*/}
                                     <View style={{
-                                        backgroundColor:"#2ba12b"
+                                        height: "12%",
+                                        //flex:1,
+                                        //backgroundColor:"#2ba12b"
                                     }}>
                                         <Text style={{
                                             paddingHorizontal: 8,
@@ -277,7 +292,8 @@ export default function GachaScreen(){
 
                                     {/*From-To Custom TimeFrame*/}
                                     <View style={{
-                                        backgroundColor:"#6cc23e",
+                                        //backgroundColor:"#6cc23e",
+                                        height: "12%",
                                         //flex:1, 
                                         flexDirection: "row",
                                         justifyContent: "space-between"
@@ -332,22 +348,24 @@ export default function GachaScreen(){
 
                                     {/*Type-Amount Sector*/}
                                     <View style={{
-                                        //flex:1, 
+                                        height:"35%",
+                                        //flex:2, 
                                         flexDirection: "row",
                                         justifyContent:"space-between",
 
-                                        backgroundColor:"#c2859c"
+                                        //backgroundColor:"#c2859c"
                                     }}>
                                         {/*Type*/}
                                         <View style={{
-                                            flex: 1
+                                            flex: 1,
+                                            //backgroundColor:"#ff9b0f"
                                         }}>
                                             <Text style={{
                                             paddingHorizontal: 8,
                                             fontSize: 15,
                                             alignSelf: "flex-start",
                                             //flex: 1,
-                                            backgroundColor:"#aaaaaa"
+                                            //backgroundColor:"#aaaaaa"
 
                                             }}>TYPE</Text>
 
@@ -356,6 +374,8 @@ export default function GachaScreen(){
                                                 backgroundColor: "#ffffff",
                                                 //width:"90%",
                                                 //height:"120%",
+                                                //flex: 1,
+                                                aspectRatio: 1,
                                                 borderColor:"#000000",
                                                 borderWidth: 2,
                                                 borderRadius: 5,
@@ -369,16 +389,16 @@ export default function GachaScreen(){
                                                 <Image 
                                                 style={{
                                                     width:"80%",
-                                                    height:"60%",
+                                                    height:"80%",
                                                     resizeMode: "contain",
                                                     
-                                                    backgroundColor:"#0000ff"
+                                                    //backgroundColor:"#0000ff"
                                                 }}
                                                 source={require("@/components/TestImages/Zzz-polychrome.webp")}/>
                                                 <Text style={{
                                                     fontSize: 20,
                                                     //paddingTop:5,
-                                                    backgroundColor:"#FF0000",
+                                                    //backgroundColor:"#FF0000",
                                                     //alignItems:"center",
                                                     //justifyContent:"center",
                                                     alignSelf:"center"
@@ -391,13 +411,15 @@ export default function GachaScreen(){
 
                                         {/*Amount, Obtained, Preset*/}
                                         <View style={{
-                                            flex:1
+                                            flex:1,
+                                            //backgroundColor:"#2f0fff"
+
                                         }}>
                                             <Text style={{
                                             paddingHorizontal: 8,
                                             fontSize: 15,
                                             alignSelf: "flex-end",
-                                            backgroundColor:"#dddddd"
+                                            //backgroundColor:"#dddddd"
                                             }}>AMOUNT</Text>
                                             <TextInput
                                                 value={sourceName}
@@ -475,9 +497,11 @@ export default function GachaScreen(){
                                     {/*Back / Enter Buttons*/}
                                     <View style={{
                                         //flex: 1,
+                                        height: "7%",
                                         flexDirection:"row",
                                         justifyContent: "space-evenly",
-                                        backgroundColor: "#00ff00"
+                                        //backgroundColor: "#00ff00",
+                                        marginBottom:20
                                     }}>
                                         <Pressable 
                                         style={{
@@ -507,11 +531,12 @@ export default function GachaScreen(){
 
                                     </View>
 
-                                </View>
+                                </ScrollView>
                             </Pressable>{/*Actual Modal Menu*/}
 
 
                         </KeyboardAvoidingView>{/*View to host the Modal Information*/}
+                    
                     </Pressable>{/*Background Opacity*/}
                 </Modal>{/*Modal Menu*/}
 
