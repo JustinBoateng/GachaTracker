@@ -1,20 +1,95 @@
-import { View, Text, Pressable, ScrollView, Image, Modal, KeyboardAvoidingView, TextInput } from "react-native";
-import {useState, useEffect} from "react";
+import {  FlatList, View, Text, Pressable, ScrollView, Image, Modal, KeyboardAvoidingView, TextInput, Keyboard, TouchableOpacity } from "react-native";
+import {useState, useEffect, useCallback} from "react";
 
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 import {Checkbox} from "expo-checkbox"
 
 import {GSS} from '@/components/customs/Styles';
+//import { FlatList } from "react-native-reanimated/lib/typescript/Animated";
 
 
 export default function GachaScreen(){
 
     const [isAddSourceModalVisible, setIsAddSourceModalVisible] = useState(false);
-    const [sourceName, setSourceName] = useState('');
+    
 
+    //use these to show/hide lists
+    const [showTimeFrameList, setShowTimeFrameList] = useState(false);
+    const [showSourceTypeList, setShowSourceTypeList] = useState(false);
+    const [showCurrencyList, setShowCurrencyList] = useState(false);
+
+    //use these to store the values in the AddSource Menu
+    const [storedTimeFrame, setStoredTimeFrame] = useState(null);
+    const [storedSourceType, setStoredSourceType] = useState(null);
+    const [storedCurrency, setStoredCurrency] = useState(null);
+    
+    const [sourceName, setSourceName] = useState('');
+    const [storedFromTime, setStoredFromTime] = useState('');
+    const [storedToTime, setStoredToTime] = useState('');
+    const [storedAmount, setStoredAmount] = useState('');
     const [wasObtained, setWasObtained] = useState(false);
     const [isPreset, setIsPreset] = useState(false);
+    
+    const [currList, setCurrList] = useState('');
+    const [currStore, setCurrStore] = useState('');
+
+    /*
+    const openList = useCallback(
+        (which_list: string) => {
+            Keyboard.dismiss();
+            switch(which_list){
+                case "TimeFrame":
+                    setShowTimeFrameList(true);
+                    break; 
+                case "SourceType":
+                    setShowSourceTypeList(true);
+                    break; 
+                case "CurrencyType":
+                    setShowCurrencyList(true);
+                    break; 
+
+                default:
+                    break;
+            }
+
+        }, [showTimeFrameList]
+    );
+    */
+
+    //function to hide list and store variable
+    const hideList = useCallback(
+        (item: any, which_list: string) => {
+            Keyboard.dismiss();
+            
+            switch(which_list){
+                case "TimeFrame":
+                    setStoredTimeFrame(item);
+                    setShowTimeFrameList(false);
+                    setCurrList('ShowTimeFrameList');
+                    setCurrStore('storedTimeFrame');
+                    
+                    break; 
+                case "SourceType":
+                    setStoredSourceType(item);
+                    setShowSourceTypeList(false);
+                    setCurrList('ShowSourceTypeList');
+                    setCurrStore('storedSourceType');
+                    
+                    break; 
+                case "CurrencyType":
+                    setShowCurrencyList(false);
+                    setCurrList('ShowCurrencyList');
+                    setCurrStore('storedCurrency');
+
+                    break; 
+
+                default:
+                    break;
+            }
+
+        }, [currList, currStore]
+    );
 
     const handleAddSource = async () => {
         const trimSourceName = sourceName.trim();
@@ -23,14 +98,18 @@ export default function GachaScreen(){
 
         setSourceName('');
         setIsAddSourceModalVisible(false)
-
     }
 
-    const TimeFrame=[
+    const TimeFrame_Selection=[
         "Daily",
         "Weekly",
         "BiWeekly",
         "Custom"
+    ]
+    const SourceType_Selection=[
+        "Gift",
+        "Free",
+        "Paid",
     ]
 
     return (
@@ -217,7 +296,7 @@ export default function GachaScreen(){
                                     height:"10%",
                                     //flex: 1,
                                     width: "100%",
-                                    marginBottom: 10,
+                                    //marginBottom: 10,
                                     justifyContent: 'flex-end'
                                 }}>
                                     <Text style={{
@@ -228,10 +307,10 @@ export default function GachaScreen(){
                                 </View>
 
                                 {/*Adding padding to everything below "Add Source*/}
-                                <ScrollView contentContainerStyle={{
+                                <View style={{
                                     flex: 1,
                                     paddingHorizontal: 20,
-                                    //backgroundColor:"#FF00fF",
+                                    backgroundColor:"#0e1859b2",
                                     height:"90%",
                                     width:"100%",
                                     //justifyContent:"space-between",
@@ -239,8 +318,10 @@ export default function GachaScreen(){
 
                                 }}>
                                     {/*Name Textbox Input*/}
-                                    <View style={{
+                                    <View 
+                                    style={{
                                         height: "12%",
+                                        marginTop: 10,
                                         //flex:1,
                                         //backgroundColor:"#abcdab"
                                     }}>
@@ -252,7 +333,7 @@ export default function GachaScreen(){
                                             value={sourceName}
                                             onChangeText={setSourceName}
                                             placeholder="Set the Name of the Source of Currency"
-                                            returnKeyType="done" //What does this mean?
+                                            returnKeyType="done" //Symbol for return keys on mobile
                                             onSubmitEditing={()=>alert("Name Set")}
                                             style={{
                                                 backgroundColor:"#FFFFFF",
@@ -265,14 +346,15 @@ export default function GachaScreen(){
 
                                     {/*TimeFrame Textbox Input*/}
                                     <View style={{
-                                        height: "12%",
+                                        height: "18%",
                                         //flex:1,
-                                        //backgroundColor:"#2ba12b"
+                                        backgroundColor:"#2ba12b"
                                     }}>
                                         <Text style={{
                                             paddingHorizontal: 8,
                                             fontSize: 15
                                         }}>Timeframe</Text>
+                                        {/*
                                         <TextInput
                                             value={sourceName}
                                             onChangeText={setSourceName}
@@ -286,7 +368,73 @@ export default function GachaScreen(){
                                                 borderRadius: 5
                                             }}
 
-                                        />
+                                        />*/}
+                                        {
+                                            showTimeFrameList ? 
+                                            (
+                                                <View style={{
+
+                                                    elevation: 2,
+                                                    shadowRadius: 2,
+                                                    shadowOpacity: 0.5,
+                                                    shadowOffset:{width:0, height: 2},
+                                                    shadowColor: "#000000"
+                                                }}>
+                                                    <FlatList
+                                                    /*
+                                                    style={{
+                                                        backgroundColor:"#FFFFFF",
+                                                        borderColor:"#000000",
+                                                        borderWidth: 2,
+                                                        borderRadius: 5
+                                                    }}
+                                                    */
+                                                    data={TimeFrame_Selection}
+                                                    renderItem={ ({item}) => 
+                                                            <TouchableOpacity
+                                                            style={{
+                                                                backgroundColor:"#f495d1",
+                                                                borderColor:"#000000",
+                                                                borderWidth:1,
+                                                                borderRadius: 5,
+                                                            }}
+                                                            onPress={() => hideList(item, "TimeFrame")}>
+                                                                <Text>
+                                                                    {item}
+                                                                </Text>
+
+                                                            </TouchableOpacity>
+                                                    }
+                                                    keyExtractor={item => item}
+                                                    />
+                                                </View>
+                                            ) : (
+                                            <View 
+                                            style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5,
+                                                height: 40,
+
+                                                
+                                            }}>
+                                                <Pressable 
+                                                style={{
+                                                    flexDirection: "row",
+                                                    flex: 1,
+                                                    justifyContent: "flex-end",
+                                                    alignItems: "center",
+                                                    padding: 7
+                                                }}
+                                                onPress={() => setShowTimeFrameList(true)}>
+                                                    <Text>
+                                                        {storedTimeFrame}
+                                                    </Text>
+                                                </Pressable>
+                                            </View>)
+                                        }
+
                                     </View>
 
 
@@ -306,8 +454,8 @@ export default function GachaScreen(){
                                             fontSize: 15
                                             }}>From</Text>
                                             <TextInput
-                                                value={sourceName}
-                                                onChangeText={setSourceName}
+                                                value={storedFromTime}
+                                                onChangeText={setStoredFromTime}
                                                 placeholder="Set the TimeFrame"
                                                 returnKeyType="done" //What does this mean?
                                                 onSubmitEditing={()=>alert("TimeFrame Set")}
@@ -329,8 +477,8 @@ export default function GachaScreen(){
                                             alignSelf:"flex-end"
                                             }}>To</Text>
                                             <TextInput
-                                                value={sourceName}
-                                                onChangeText={setSourceName}
+                                                value={storedToTime}
+                                                onChangeText={setStoredToTime}
                                                 placeholder="Set the TimeFrame"
                                                 returnKeyType="done" //What does this mean?
                                                 onSubmitEditing={()=>alert("TimeFrame Set")}
@@ -347,7 +495,8 @@ export default function GachaScreen(){
 
 
                                     {/*Type-Amount Sector*/}
-                                    <View style={{
+                                    <View 
+                                    style={{
                                         height:"35%",
                                         //flex:2, 
                                         flexDirection: "row",
@@ -410,17 +559,51 @@ export default function GachaScreen(){
 
 
                                         {/*Amount, Obtained, Preset*/}
-                                        <View style={{
+                                        <View 
+                                        style={{
                                             flex:1,
-                                            //backgroundColor:"#2f0fff"
-
+                                            backgroundColor:"#0fff87"
                                         }}>
+
+                                            {/*Amount*/}
                                             <Text style={{
                                             paddingHorizontal: 8,
                                             fontSize: 15,
                                             alignSelf: "flex-end",
                                             //backgroundColor:"#dddddd"
                                             }}>AMOUNT</Text>
+
+                                            <View 
+                                            style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5,
+                                                alignItems:"flex-end"
+                                            }}>
+                                                <TextInput
+                                                    value={storedAmount}
+                                                    onChangeText={setStoredAmount}
+                                                    placeholder="0"
+                                                    returnKeyType="done" //What does this mean?
+                                                    onSubmitEditing={()=>alert("Amount Set")}
+                                                    style={{
+                                                    flex: 1
+                                                    //justifyContent:"flex-end",
+                                                    //width: "100%",
+                                                    //alignSelf:"flex-start"
+                                                }}/>
+
+                                            </View>
+                                            {/*Source Type*/}
+                                            <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15,
+                                            alignSelf: "flex-end",
+                                            //backgroundColor:"#dddddd"
+                                            }}>TYPE</Text>
+                                            
+                                            {/*
                                             <TextInput
                                                 value={sourceName}
                                                 onChangeText={setSourceName}
@@ -433,10 +616,66 @@ export default function GachaScreen(){
                                                 borderWidth: 2,
                                                 borderRadius: 5,
                                                 alignContent:"flex-end"
+                                            }}/>
+                                            */}
 
-                                            }}
+                                            {
+                                            showSourceTypeList ? 
+                                            (
+                                                <View style={{
 
-                                            />
+                                                    elevation: 2,
+                                                    shadowRadius: 2,
+                                                    shadowOpacity: 0.5,
+                                                    shadowOffset:{width:0, height: 2},
+                                                    shadowColor: "#000000"
+                                                }}>
+                                                    <FlatList
+                                                    data={SourceType_Selection}
+                                                    renderItem={ ({item}) => 
+                                                            <TouchableOpacity
+                                                            style={{
+                                                                backgroundColor:"#f495d1",
+                                                                borderColor:"#000000",
+                                                                borderWidth:1,
+                                                                borderRadius: 5,
+                                                            }}
+                                                            onPress={() => hideList(item, "SourceType")}>
+                                                                <Text>
+                                                                    {item}
+                                                                </Text>
+
+                                                            </TouchableOpacity>
+                                                    }
+                                                    keyExtractor={item => item}
+                                                    />
+                                                </View>
+                                            ) : (
+                                            <View 
+                                            style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5,
+                                                height: 40,
+                                            }}>
+                                                <Pressable 
+                                                style={{
+                                                    flexDirection: "row",
+                                                    flex: 1,
+                                                    justifyContent: "flex-end",
+                                                    alignItems: "center",
+                                                    padding: 7
+                                                }}
+                                                onPress={() => setShowSourceTypeList(true)}>
+                                                    <Text>
+                                                        {storedSourceType}
+                                                    </Text>
+                                                </Pressable>
+                                            </View>)
+                                        }
+
+
 
                                             {/*Obtained and Preset Checkboxes*/}
 
@@ -466,6 +705,7 @@ export default function GachaScreen(){
                                                 onValueChange={setWasObtained}/>
                                             </View>
 
+                                            {/*Preset*/}
                                             <View style={{
                                                 //flex:1, 
                                                 flexDirection:"row",
@@ -486,8 +726,8 @@ export default function GachaScreen(){
                                                     borderWidth: 2,
                                                     borderRadius: 5
                                                 }}
-                                                value={wasObtained}
-                                                onValueChange={setWasObtained}/>
+                                                value={isPreset}
+                                                onValueChange={setIsPreset}/>
 
                                             </View>
                                         </View>{/*Amount Obtained Preset Mini Menu*/}
@@ -531,7 +771,7 @@ export default function GachaScreen(){
 
                                     </View>
 
-                                </ScrollView>
+                                </View>
                             </Pressable>{/*Actual Modal Menu*/}
 
 
