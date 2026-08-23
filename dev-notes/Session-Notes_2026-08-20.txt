@@ -1,0 +1,235 @@
+GachaTracker Dev Session Notes
+Saved: 2026-08-20
+File primarily discussed: app/(tabs)/GachaScreen.tsx
+================================================================================
+
+This is a recap of a debugging/learning session covering React Native + Expo
+layout issues, a couple of "Text strings must be rendered within a <Text>
+component" errors, a Modal flex-layout deep dive, a FlatList TypeScript error,
+and a useCallback dependency-array question. Organized by topic, in the order
+they came up.
+
+--------------------------------------------------------------------------------
+1. "Text strings must be rendered within a <Text> component" — how to diagnose
+--------------------------------------------------------------------------------
+Core question: coming from Unity's inline line-number errors, how do you find
+the exact file/line for a React Native runtime error?
+
+- The rule: a `View`-family component (View, Pressable, etc.) cannot have a
+  bare/raw string as a direct child. Siblings (View next to Text) are always
+  fine — the rule is specifically about literal text characters that aren't
+  wrapped in a <Text>.
+- The RN "Call Stack" shown in LogBox on the emulator is almost always
+  React/Hermes internals (renderWithHooks, beginWork, etc.) — not useful.
+- The real equivalent of Unity's line-number pointer is the **Component
+  Stack**, further down in the same LogBox error (or in the terminal output
+  below the error). It lists each JSX component with "(at YourFile.tsx:LINE)"
+  annotations — search your own filename there, not the top of the stack.
+- Better tool: **React Native DevTools** — press `j` in the Metro terminal
+  (or dev menu → Open DevTools) for a Chrome-DevTools-style Sources panel
+  with real breakpoints on your actual files.
+- Setting the `EXPO_EDITOR` (or `REACT_EDITOR`) env var to `code` makes
+  "Open Stack Trace" in LogBox jump straight into VSCode at the right line.
+- When the component stack still isn't specific enough: bisect — comment out
+  half the JSX, reload, narrow down which half still errors.
+- **Best long-term fix**: installed `eslint-plugin-react-native` and enabled
+  the `no-raw-text` rule in eslint.config.js. This catches this exact bug at
+  edit-time (red squiggly in the editor via the ESLint extension), instead of
+  only finding out at runtime on the emulator — this is the actual Unity-style
+  "compiler tells you the line" equivalent for RN.
+
+--------------------------------------------------------------------------------
+2. Cropping a child View to its parent's bounds
+--------------------------------------------------------------------------------
+- `objectFit` / `resizeMode` are Image-only props — they silently do nothing
+  on a plain View (RN ignores unknown style keys rather than erroring).
+- The real CSS/RN equivalent of "mask this child to my bounds" is
+  `overflow: "hidden"` on the PARENT, not a special prop on the child.
+  It also clips to `borderRadius`, which is usually what you want for a
+  pill-shaped progress bar.
+- Applied to `progressBar` / `progressBar_current` in Styles.tsx.
+
+--------------------------------------------------------------------------------
+3. Putting an Image in front of Text (layering / z-order)
+--------------------------------------------------------------------------------
+- Two elements only overlap if both are taken out of normal document flow —
+  i.e. both need `position: "absolute"`, anchored to a parent with
+  `position: "relative"`. Without `position: "absolute"` on the children,
+  `top`/`left` just nudge them within normal flow; they don't overlay.
+- Paint order (z-order) rule with no explicit zIndex: **later JSX siblings
+  paint on top of earlier ones** — same as CSS with no z-index set. So
+  putting <Image> after <Text> in JSX was enough to get Image on top, no
+  zIndex needed.
+- To reverse it later: add explicit `zIndex` values instead of reordering JSX.
+
+--------------------------------------------------------------------------------
+4. Pressable "invisible" — zero-width collapse
+--------------------------------------------------------------------------------
+Symptom: a Pressable with a green background wasn't showing up at all.
+
+Root cause chain:
+  1. Parent View used `alignItems: "center"` (not "stretch"), so it doesn't
+     force children to fill its width — width is based on the child's content.
+  2. Both children of the Pressable were `position: "absolute"`, which pulls
+     them out of normal flow — meaning the Pressable had NO in-flow content
+     left to size itself around.
+  3. Result: Pressable's computed width collapsed to 0. A 0-width green
+     background is invisible, even though it still had a height from `flex:1`.
+- Fix: `alignSelf: "stretch"` on the Pressable to force full width regardless
+  of the parent's alignItems.
+- General lesson: if every child of a container is `position: "absolute"`,
+  the container itself has no content left to size around and can collapse
+  to zero unless you explicitly size it (width/height, or flex + alignSelf).
+
+--------------------------------------------------------------------------------
+5. Second raw-text bug — the REAL root cause (found via ESLint + AST)
+--------------------------------------------------------------------------------
+This one initially looked mysterious: deleting all comments "fixed" the
+error, but deleting the styling `//` comments alone didn't.
+
+- Wrote a Node script using @babel/parser to walk the actual AST and check
+  every child of every non-Text element for leftover text nodes — found
+  nothing in the file at that point (a valid finding, but too narrow a rule).
+- Real answer came from running the newly-installed `no-raw-text` ESLint
+  rule: it flagged 6 spots of the pattern:
+      </ClosingTag> {/*trailing comment*/}
+  A single space sitting between a closing tag and a same-line trailing
+  comment. JSX only collapses whitespace that's adjacent to a LINE BREAK —
+  a lone space with no newline on either side is preserved as a real text
+  child, which is exactly what RN's check flags.
+- Fix: closed the gap — `</ClosingTag>{/*trailing comment*/}` (no space).
+- Correction to something said earlier in-session: "whitespace-only text
+  nodes always collapse to nothing" is WRONG in the single-line case. Only
+  whitespace adjacent to a newline collapses.
+- Rule of thumb going forward: never put a space directly before a same-line
+  trailing comment/sibling — either delete the space or put the comment on
+  its own line.
+
+--------------------------------------------------------------------------------
+6. Modal layout — flex ratios, sizing chain, and image cropping avoidance
+--------------------------------------------------------------------------------
+Question: is `flex: 0.6` on KeyboardAvoidingView (the modal sheet, with no
+siblings) valid, and why is the "Type" Pressable inside the Type/Amount
+sector inconsistently oversized?
+
+- **flex numbers are only meaningful relative to SIBLINGS.** flexGrow
+  distributes leftover space proportionally among grow-eligible children.
+  With only ONE such child, that child gets 100% of the leftover space no
+  matter what number you give it — flex:0.6 behaves identically to flex:1
+  or flex:12 there. For "be X% of my parent, full stop," use an explicit
+  `height: "60%"` / `maxHeight` instead — it doesn't depend on sibling count.
+- Found a likely copy-paste mistake: the "TYPE" label Text had `flex: 1`
+  while the equivalent "AMOUNT" label did not — this made the label compete
+  with its sibling Pressable (flex:5) for space using an arbitrary 1:5 ratio,
+  instead of the Pressable cleanly taking "the rest."
+  Guideline: content-sized elements (labels, buttons) shouldn't have flex at
+  all; give exactly the sibling that should "take the rest" a flex:1.
+- Bigger structural point: the whole modal sheet chain (Image → Pressable →
+  Type View → row → 5-equal-sections column → padding wrapper → sheet →
+  KeyboardAvoidingView → overlay Pressable → screen) is ~7-8 layers of
+  relative sizing with NO hard ceiling anywhere (no maxHeight, no
+  overflow:hidden, no ScrollView). Flex items won't shrink below their
+  content's minimum size, so if one column's content (e.g. the Amount
+  column's stacked checkboxes) ever needs more room than its "fair share,"
+  the whole row grows to fit it — and that growth cascades disproportionately
+  into whatever's expressed as a fraction of a fraction deepest in the chain
+  (the Type Pressable). This is why its size felt "inconsistent."
+  Suggested fix direction: anchor 1-2 real constraints (e.g. maxHeight on the
+  sheet), add overflow/scroll handling below that ceiling, and consider
+  giving the Type button a fixed size or aspectRatio instead of deriving it
+  from the flex chain.
+- Cropping question: `resizeMode: "contain"` (already in use) never crops —
+  it scales the whole image down uniformly and letterboxes instead. The
+  fix for unwanted size instability is stabilizing the BOX (per above), not
+  changing resizeMode.
+- Diagnostic tip: use the on-device Element Inspector (dev menu → Show
+  Element Inspector) to read actual computed pixel sizes per layer, rather
+  than mentally tracing many layers of flex math.
+
+--------------------------------------------------------------------------------
+7. FlatList TypeScript error on renderItem
+--------------------------------------------------------------------------------
+Error: `Type '({ item }: ListRenderItemInfo<string>) => void' is not
+assignable to type 'ListRenderItem<string> | SharedValue<...> | ...'`
+
+Two stacked bugs, NOT a nullability issue as originally suspected:
+
+1. Wrong import: `import { FlatList } from
+   "react-native-reanimated/lib/typescript/Animated"` — pulled in
+   Reanimated's internal Animated.FlatList typing (hence the `SharedValue<...>`
+   in the error, which is Reanimated-specific), not plain RN FlatList.
+   Fix direction: import FlatList from "react-native" instead.
+2. The actual type mismatch: the renderItem arrow function had a block body
+   (`=> { ... }`) with no `return` statement, so TypeScript inferred its
+   return type as `void` — which is literally what the error says. The
+   `item && (...)` expression was evaluated and discarded, never returned.
+   `item` itself is never null/undefined for a plain string array, so the
+   "make item optional" fix never addressed the real defect.
+   Fix direction: add an explicit `return`, or drop the curly braces for an
+   expression-bodied arrow that auto-returns.
+
+Bonus — generalizing hideList/openList per list instead of one function each:
+- Yes, doable. State setter functions from useState are just ordinary values
+  — pass the relevant setter(s) as parameters into one shared function
+  instead of hardcoding a specific setState call per variant.
+- For 3+ parallel show/store state pairs, consider consolidating further:
+  one `activeList` state (which list, if any, is open) + one values object
+  keyed by list name, instead of parallel booleans/values per list.
+- Side note: openList/hideList's useCallback dependency arrays didn't match
+  what the functions actually read (see next section for why that matters
+  less than it seems).
+
+--------------------------------------------------------------------------------
+8. Amount textbox appearing to affect the Name field
+--------------------------------------------------------------------------------
+- Audited every use of `sourceName` / `storedAmount` in the file — the
+  wiring is correct. Amount is bound to storedAmount/setStoredAmount, Name to
+  sourceName/setSourceName, no shared state, no duplicate active binding.
+- Since the source code itself checks out, the likely explanations to test,
+  cheapest first:
+    1. Stale Fast Refresh / old bundle — force a full reload (Ctrl+M/Cmd+D →
+       Reload) before assuming the code is still wrong. This has been the
+       explanation for more than one "fixed it but the error's still there"
+       moment this session.
+    2. Overlapping touch targets — one of the absolutely-positioned dropdown
+       overlays (TimeFrame/SourceType/Currency lists) might be sized/placed
+       such that it invisibly extends over the Amount field, so a tap there
+       actually focuses whatever's underneath. Use the Element Inspector to
+       tap the Amount field's screen location and see what it actually
+       reports.
+    3. If still unclear: give Name and Amount visually distinct placeholders
+       and border colors, type in Amount, and watch which visible box
+       actually updates.
+
+--------------------------------------------------------------------------------
+9. useCallback dependency array — currList/currStore misconception
+--------------------------------------------------------------------------------
+Question: does adding `currList`/`currStore` (written inside hideList) to its
+own useCallback dependency array make hideList correctly "track" state?
+
+- No. The dependency array exists to catch ONE thing: does the function body
+  read a variable from the enclosing scope that can change between renders
+  (risk of a stale closure)? It has nothing to do with "what did this
+  function last do" or tracking writes.
+- hideList's actual branching logic depends only on `which_list` and `item`
+  — both are PARAMETERS, passed fresh on every call. Parameters can never go
+  stale regardless of the dependency array; only captured outer-scope
+  variables can.
+- currList/currStore are only ever WRITTEN inside hideList (setCurrList,
+  setCurrStore), never READ — so they can't cause a stale closure, and
+  listing them accomplishes nothing for correctness.
+- It's actively counterproductive: calling hideList sets currList/currStore
+  → triggers a re-render → because they're in the deps array, useCallback
+  mints a brand-new function reference every time → defeats the point of
+  memoizing at all (matters if hideList is ever passed to a React.memo child
+  or used as another hook's dependency).
+- Correct dependency array here: `[]` (empty) — nothing from the outer scope
+  is actually read. (State setters like setStoredTimeFrame are guaranteed
+  stable by React and never need to be listed either.)
+- If currList/currStore are wanted for some other UI purpose (e.g. showing
+  "currently selected list" somewhere), that's fine — just treat it as
+  unrelated to the dependency-array question.
+
+================================================================================
+End of notes.
+================================================================================

@@ -6,14 +6,19 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import {Checkbox} from "expo-checkbox"
 
 import {GSS} from '@/components/customs/Styles';
+import * as GSC from "@/components/customs/GSConstants"
+
+
 //import { FlatList } from "react-native-reanimated/lib/typescript/Animated";
+
+import DateTimePicker, {DateTimePickerChangeEvent} from "@react-native-community/datetimepicker"
 
 
 export default function GachaScreen(){
 
+    /*
     const [isAddSourceModalVisible, setIsAddSourceModalVisible] = useState(false);
     
-
     //use these to show/hide lists
     const [showTimeFrameList, setShowTimeFrameList] = useState(false);
     const [showSourceTypeList, setShowSourceTypeList] = useState(false);
@@ -25,8 +30,8 @@ export default function GachaScreen(){
     const [storedCurrency, setStoredCurrency] = useState(null);
     
     const [sourceName, setSourceName] = useState('');
-    const [storedFromTime, setStoredFromTime] = useState('');
-    const [storedToTime, setStoredToTime] = useState('');
+    //const [storedFromTime, setStoredFromTime] = useState('');
+    //const [storedToTime, setStoredToTime] = useState('');
     const [storedAmount, setStoredAmount] = useState('');
     const [wasObtained, setWasObtained] = useState(false);
     const [isPreset, setIsPreset] = useState(false);
@@ -34,28 +39,41 @@ export default function GachaScreen(){
     const [currList, setCurrList] = useState('');
     const [currStore, setCurrStore] = useState('');
 
-    /*
-    const openList = useCallback(
-        (which_list: string) => {
-            Keyboard.dismiss();
-            switch(which_list){
-                case "TimeFrame":
-                    setShowTimeFrameList(true);
-                    break; 
-                case "SourceType":
-                    setShowSourceTypeList(true);
-                    break; 
-                case "CurrencyType":
-                    setShowCurrencyList(true);
-                    break; 
 
-                default:
-                    break;
+    const [fromDate, setFromDate] = useState<Date>();
+    const [toDate, setToDate] = useState<Date>();
+    const [showFromDatePicker, setShowFromDatePicker] = useState(false);
+    const [showToDatePicker, setShowToDatePicker] = useState(false);
+    
+    const handleDateChange = useCallback(
+        (event: DateTimePickerChangeEvent, selectedDate : Date, type: string) => {
+                
+            var currentDate = new Date();
+            console.log(event)
+
+            switch(type){
+                case "from":
+                currentDate = selectedDate || fromDate;
+                console.log("From:" + currentDate)
+                setFromDate(currentDate)
+                setShowFromDatePicker(false);
+                break;
+
+                case "to":
+                currentDate = selectedDate || toDate;
+                console.log("To:" + currentDate)
+                setToDate(currentDate)
+                setShowToDatePicker(false);
+                break;
             }
-
-        }, [showTimeFrameList]
+            
+                //const currentDate = selectedDate || fromDate;
+                
+            
+            //pressing cancel does not automatically set the variable to false of course
+            //you'll need to specify that yourself.
+        },[fromDate, toDate]
     );
-    */
 
     //function to hide list and store variable
     const hideList = useCallback(
@@ -78,6 +96,7 @@ export default function GachaScreen(){
                     
                     break; 
                 case "CurrencyType":
+                    setStoredCurrency(item);
                     setShowCurrencyList(false);
                     setCurrList('ShowCurrencyList');
                     setCurrStore('storedCurrency');
@@ -100,6 +119,67 @@ export default function GachaScreen(){
         setIsAddSourceModalVisible(false)
     }
 
+    type Source={
+        name: "",
+        timeframe: "",
+        from?: Date,
+        to?: Date,
+        CurrencyType: Currency,
+        amount: 0,
+        ObtainType: string,
+        obtained: boolean,
+        preset: boolean 
+    }
+
+    type Currency={
+        name: "",
+        visual: Image,
+        value: 1, 
+        isBatch: false,
+        realWorldValue: 0
+    }
+
+    const Base_Currencies=[
+        {
+            name:"Polychromes",
+            visualLink: "@/components/TestImages/Zzz-polychrome.webp",
+            value: 1,
+            isBatch: false,
+            realWorldValue: 0.0165
+        },
+
+        {
+            name:"Encrypted Master Tape",
+            visualLink: "@/components/TestImages/Item_Encrypted_Master_Tape.webp",
+            value: 160,
+            isBatch: true,
+            realWorldValue: 2.64
+        }
+    ]
+
+    //60 Polychrome for $0.99
+    //1 Polychrome for $0.0165
+    type Banner={
+        name: string, 
+        visual?: Image,
+        visualLink?: ""
+        Ranks: string,
+        hasPity: boolean,
+        pityPoint: number,
+        AcceptableCurrency: Currency
+    }
+
+    type Rank={
+        name: String
+        visual?: Image
+    }
+
+    const DefaultRankList=[
+        {name: "S", visual: null},
+        {name: "A", visual: null},
+        {name: "B", visual: null},
+    ]
+
     const TimeFrame_Selection=[
         "Daily",
         "Weekly",
@@ -112,6 +192,7 @@ export default function GachaScreen(){
         "Paid",
     ]
 
+    */
     return (
         <SafeAreaProvider>
             <SafeAreaView style={GSS.container}>
@@ -220,7 +301,7 @@ export default function GachaScreen(){
 
                         {/*Sources*/}
                         <View style={GSS.SourcesWindow}>
-                            <Pressable style={GSS.AddSource} onPress={() => setIsAddSourceModalVisible(true)}>
+                            <Pressable style={GSS.AddSource} onPress={() => GSC.setIsAddSourceModalVisible(true)}>
                                 <Text style={{
                                     color:"#ffffff",
                                     fontSize: 20
@@ -248,9 +329,9 @@ export default function GachaScreen(){
 
                 {/*Modal Menu*/}
                 <Modal
-                visible={isAddSourceModalVisible}
+                visible={GSC.isAddSourceModalVisible}
                 transparent animationType="slide"
-                onRequestClose={() => setIsAddSourceModalVisible(false)}>
+                onRequestClose={() => GSC.setIsAddSourceModalVisible(false)}>
 
                     {/*Background Opacity*/}
                     <Pressable
@@ -259,7 +340,7 @@ export default function GachaScreen(){
                             justifyContent: 'flex-end',
                             backgroundColor:"rgba(14, 48, 108, 0.79)"
                         }}
-                        onPress={()=> setIsAddSourceModalVisible(false)}>
+                        onPress={()=> GSC.setIsAddSourceModalVisible(false)}>
 
                         {/*View to host the Modal Information*/}
                         <KeyboardAvoidingView
@@ -307,7 +388,8 @@ export default function GachaScreen(){
                                 </View>
 
                                 {/*Adding padding to everything below "Add Source*/}
-                                <View style={{
+                                <View 
+                                style={{
                                     flex: 1,
                                     paddingHorizontal: 20,
                                     backgroundColor:"#0e1859b2",
@@ -327,11 +409,12 @@ export default function GachaScreen(){
                                     }}>
                                         <Text style={{
                                             paddingHorizontal: 8,
-                                            fontSize: 15
+                                            fontSize: 15,
+                                            color:"white"
                                         }}>NAME</Text>
                                         <TextInput
-                                            value={sourceName}
-                                            onChangeText={setSourceName}
+                                            value={GSC.sourceName}
+                                            onChangeText={GSC.setSourceName}
                                             placeholder="Set the Name of the Source of Currency"
                                             returnKeyType="done" //Symbol for return keys on mobile
                                             onSubmitEditing={()=>alert("Name Set")}
@@ -348,31 +431,19 @@ export default function GachaScreen(){
                                     <View style={{
                                         height: "18%",
                                         //flex:1,
-                                        backgroundColor:"#2ba12b"
+                                        //backgroundColor:"#2ba12b"
                                     }}>
                                         <Text style={{
                                             paddingHorizontal: 8,
-                                            fontSize: 15
+                                            fontSize: 15,
+                                            color:"white"
                                         }}>Timeframe</Text>
-                                        {/*
-                                        <TextInput
-                                            value={sourceName}
-                                            onChangeText={setSourceName}
-                                            placeholder="Set the TimeFrame"
-                                            returnKeyType="done" //What does this mean?
-                                            onSubmitEditing={()=>alert("TimeFrame Set")}
-                                            style={{
-                                                backgroundColor:"#FFFFFF",
-                                                borderColor:"#000000",
-                                                borderWidth: 2,
-                                                borderRadius: 5
-                                            }}
 
-                                        />*/}
                                         {
-                                            showTimeFrameList ? 
+                                            GSC.showTimeFrameList ?
                                             (
-                                                <View style={{
+                                                <View 
+                                                style={{
 
                                                     elevation: 2,
                                                     shadowRadius: 2,
@@ -381,15 +452,7 @@ export default function GachaScreen(){
                                                     shadowColor: "#000000"
                                                 }}>
                                                     <FlatList
-                                                    /*
-                                                    style={{
-                                                        backgroundColor:"#FFFFFF",
-                                                        borderColor:"#000000",
-                                                        borderWidth: 2,
-                                                        borderRadius: 5
-                                                    }}
-                                                    */
-                                                    data={TimeFrame_Selection}
+                                                    data={GSC.TimeFrame_Selection}
                                                     renderItem={ ({item}) => 
                                                             <TouchableOpacity
                                                             style={{
@@ -398,7 +461,7 @@ export default function GachaScreen(){
                                                                 borderWidth:1,
                                                                 borderRadius: 5,
                                                             }}
-                                                            onPress={() => hideList(item, "TimeFrame")}>
+                                                            onPress={() => GSC.hideList(item, "TimeFrame")}>
                                                                 <Text>
                                                                     {item}
                                                                 </Text>
@@ -409,30 +472,31 @@ export default function GachaScreen(){
                                                     />
                                                 </View>
                                             ) : (
-                                            <View 
-                                            style={{
-                                                backgroundColor:"#FFFFFF",
-                                                borderColor:"#000000",
-                                                borderWidth: 2,
-                                                borderRadius: 5,
-                                                height: 40,
-
-                                                
-                                            }}>
-                                                <Pressable 
+                                                <View 
                                                 style={{
-                                                    flexDirection: "row",
-                                                    flex: 1,
-                                                    justifyContent: "flex-end",
-                                                    alignItems: "center",
-                                                    padding: 7
-                                                }}
-                                                onPress={() => setShowTimeFrameList(true)}>
-                                                    <Text>
-                                                        {storedTimeFrame}
-                                                    </Text>
-                                                </Pressable>
-                                            </View>)
+                                                    backgroundColor:"#FFFFFF",
+                                                    borderColor:"#000000",
+                                                    borderWidth: 2,
+                                                    borderRadius: 5,
+                                                    height: 40,
+
+                                                    
+                                                }}>
+                                                    <Pressable 
+                                                    style={{
+                                                        flexDirection: "row",
+                                                        flex: 1,
+                                                        justifyContent: "flex-end",
+                                                        alignItems: "center",
+                                                        padding: 7
+                                                    }}
+                                                    onPress={() => GSC.setShowTimeFrameList(true)}>
+                                                        <Text>
+                                                            {GSC.storedTimeFrame}
+                                                        </Text>
+                                                    </Pressable>
+                                                </View>
+                                            )
                                         }
 
                                     </View>
@@ -441,56 +505,111 @@ export default function GachaScreen(){
                                     {/*From-To Custom TimeFrame*/}
                                     <View style={{
                                         //backgroundColor:"#6cc23e",
-                                        height: "12%",
+                                        height: "10%",
                                         //flex:1, 
                                         flexDirection: "row",
                                         justifyContent: "space-between"
 
                                         }}>
                                         {/*From*/}
-                                        <View>
-                                            <Text style={{
-                                            paddingHorizontal: 8,
-                                            fontSize: 15
-                                            }}>From</Text>
-                                            <TextInput
-                                                value={storedFromTime}
-                                                onChangeText={setStoredFromTime}
-                                                placeholder="Set the TimeFrame"
-                                                returnKeyType="done" //What does this mean?
-                                                onSubmitEditing={()=>alert("TimeFrame Set")}
-                                                style={{
-                                                backgroundColor:"#FFFFFF",
-                                                borderColor:"#000000",
-                                                borderWidth: 2,
-                                                borderRadius: 5
-                                            }}
-
-                                            />
-                                        </View>
-
-                                        {/*To*/}
-                                        <View>
+                                        <View 
+                                        style={{
+                                            flex: 1
+                                        }}>
                                             <Text style={{
                                             paddingHorizontal: 8,
                                             fontSize: 15,
-                                            alignSelf:"flex-end"
-                                            }}>To</Text>
-                                            <TextInput
-                                                value={storedToTime}
-                                                onChangeText={setStoredToTime}
-                                                placeholder="Set the TimeFrame"
-                                                returnKeyType="done" //What does this mean?
-                                                onSubmitEditing={()=>alert("TimeFrame Set")}
-                                                style={{
+                                            alignSelf: "flex-start",
+                                            color:"white"
+                                            }}>From</Text>
+                                            
+                                            {/*Button Frame*/}
+                                            <Pressable
+                                            style={{
                                                 backgroundColor:"#FFFFFF",
                                                 borderColor:"#000000",
                                                 borderWidth: 2,
-                                                borderRadius: 5
-                                            }}
+                                                borderRadius: 5,
+                                                flexDirection:"row",
+                                                flex: 1,
+                                                justifyContent: "center",
+                                                //width: "100%",
+                                                //height: "40%"
 
-                                            />
+                                            }}
+                                            onPress={() => GSC.setShowFromDatePicker(true)}
+                                            >
+                                                {/*Text in Button*/}
+                                                <Text style={{fontSize:16, backgroundColor: "green"}}>
+                                                    {GSC.fromDate?.toDateString()}
+                                                </Text>
+
+                                                {/*Calendar Visual*/}
+                                                {
+                                                    GSC.showFromDatePicker ?
+
+                                                    <DateTimePicker
+                                                    mode={'date'}
+                                                    value={GSC.fromDate || new Date()} //choose from the date constant or the current date
+                                                    onValueChange={
+                                                        (event, selectedDate) =>
+                                                        {GSC.handleDateChange(event, selectedDate, "from")}}
+                                                    /> 
+                                                    :
+                                                    (null)
+                                                }
+                                            </Pressable>    
                                         </View>
+
+                                        {/*To*/}
+                                        <View 
+                                        style={{
+                                            flex: 1
+                                        }}>
+                                            <Text style={{
+                                            paddingHorizontal: 8,
+                                            fontSize: 15,
+                                            alignSelf:"flex-end",
+                                            color:"white"
+                                            }}>To</Text>
+
+
+                                            {/*Button Frame*/}
+                                            <Pressable
+                                            style={{
+                                                backgroundColor:"#FFFFFF",
+                                                borderColor:"#000000",
+                                                borderWidth: 2,
+                                                borderRadius: 5,
+                                                flexDirection:"row",
+                                                flex: 1,
+                                                justifyContent: "center"
+                                                //width: "100%",
+
+                                            }}
+                                            onPress={() => GSC.setShowToDatePicker(true)}
+                                            >
+                                                {/*Text in Button*/}
+                                                <Text style={{fontSize:16, backgroundColor: "red"}}>
+                                                    {GSC.toDate?.toDateString()}
+                                                </Text>
+
+                                                {/*Calendar Visual*/}
+                                                {
+                                                    GSC.showToDatePicker ?
+
+                                                    <DateTimePicker
+                                                    mode={'date'}
+                                                    value={GSC.toDate || new Date()} //choose from the date constant or the current date
+                                                    onValueChange={(event, selectedDate) => {GSC.handleDateChange(event,selectedDate, "to")}}
+                                                    /> 
+                                                    :
+                                                    (null)
+                                                }
+                                            </Pressable>    
+
+                                        </View>
+
                                     </View>
 
 
@@ -513,6 +632,7 @@ export default function GachaScreen(){
                                             paddingHorizontal: 8,
                                             fontSize: 15,
                                             alignSelf: "flex-start",
+                                            color:"white"
                                             //flex: 1,
                                             //backgroundColor:"#aaaaaa"
 
@@ -532,8 +652,12 @@ export default function GachaScreen(){
                                                 alignItems: "center",
                                                 justifyContent:"center"
                                             }}
-                                            onPress={() => alert("Select Type")}
+                                            onPress={() => {
+                                                alert("Select Type"); 
+                                                GSC.setShowCurrencyList(true);
+                                            }}
                                             >
+
 
                                                 <Image 
                                                 style={{
@@ -554,6 +678,41 @@ export default function GachaScreen(){
 
 
                                                 }}>PREMIUM CURR</Text>
+
+                                                {
+                                                    GSC.showCurrencyList ?
+                                                    (<View
+                                                    style={{
+                                                        elevation: 2, 
+                                                        shadowRadius: 2,
+                                                        shadowOpacity: 0.5,
+                                                        shadowOffset:{width:0, height: 2},
+                                                        shadowColor: "#000000"
+                                                    }}>
+                                                        <FlatList
+                                                        data={GSC.Base_Currencies}
+                                                        renderItem={ ({item} ) => 
+                                                            <TouchableOpacity
+                                                            style={{
+
+                                                            }}
+                                                            onPress={() => GSC.hideList(item, "CurrencyType")}
+                                                            >
+                                                                <Image
+                                                                source={require(item.visualLink)}/>
+                                                                <Text>
+                                                                    {item.name}
+                                                                </Text>
+                                                            </TouchableOpacity>
+                                                        }
+                                                        keyExtractor={item => item.name}
+                                                        />
+                                                            
+                                                        
+                                                    </View>) : null
+
+                                                }
+
                                             </Pressable>
                                         </View>{/*Type*/}
 
@@ -562,7 +721,7 @@ export default function GachaScreen(){
                                         <View 
                                         style={{
                                             flex:1,
-                                            backgroundColor:"#0fff87"
+                                            //backgroundColor:"#0fff87"
                                         }}>
 
                                             {/*Amount*/}
@@ -571,109 +730,122 @@ export default function GachaScreen(){
                                             fontSize: 15,
                                             alignSelf: "flex-end",
                                             //backgroundColor:"#dddddd"
+                                            color:"white"
                                             }}>AMOUNT</Text>
 
+                                            {/*Box Boundaries*/}
                                             <View 
                                             style={{
                                                 backgroundColor:"#FFFFFF",
                                                 borderColor:"#000000",
                                                 borderWidth: 2,
                                                 borderRadius: 5,
-                                                alignItems:"flex-end"
+                                                flexDirection: "row"
                                             }}>
-                                                <TextInput
-                                                    value={storedAmount}
-                                                    onChangeText={setStoredAmount}
-                                                    placeholder="0"
-                                                    returnKeyType="done" //What does this mean?
-                                                    onSubmitEditing={()=>alert("Amount Set")}
-                                                    style={{
-                                                    flex: 1
-                                                    //justifyContent:"flex-end",
-                                                    //width: "100%",
-                                                    //alignSelf:"flex-start"
-                                                }}/>
 
+                                                {/*Box Inner Area*/}
+                                                <View style={{
+                                                    flexDirection: "row",
+                                                    flex: 1,
+                                                    //backgroundColor:"pink",
+                                                }}>
+
+                                                    {/*Text Area within boundary*/}
+                                                    <TextInput
+                                                        value={GSC.storedAmount}
+                                                        onChangeText={GSC.setStoredAmount}
+                                                        placeholder="0"
+                                                        returnKeyType="done" //What does this mean?
+                                                        onSubmitEditing={()=>alert("Amount Set")}
+                                                        style={{
+                                                        flex: 1,
+                                                        //width: "100%",
+                                                        //alignSelf:"flex-start"
+                                                        fontSize: 12,
+                                                        color: "black",
+                                                        //width:"100%",
+                                                        textAlign: "right",
+                                                        //backgroundColor:"red",
+                                                        //flexDirection:"row",
+                                                        //justifyContent:"center",
+                                                        //alignItems:"center"
+                                                        //alignContent:"center"
+                                                        // flexDirection: "row",
+                                                        // //flex: 1,
+                                                        // justifyContent:"flex-start",
+                                                        // alignItems:"center",
+                                                        paddingHorizontal: 7,
+                                                        
+                                                    }}/>
+                                                    
+                                                </View>
                                             </View>
+
                                             {/*Source Type*/}
                                             <Text style={{
                                             paddingHorizontal: 8,
                                             fontSize: 15,
                                             alignSelf: "flex-end",
+                                            color:"white"
                                             //backgroundColor:"#dddddd"
                                             }}>TYPE</Text>
-                                            
-                                            {/*
-                                            <TextInput
-                                                value={sourceName}
-                                                onChangeText={setSourceName}
-                                                placeholder="0"
-                                                returnKeyType="done" //What does this mean?
-                                                onSubmitEditing={()=>alert("TimeFrame Set")}
-                                                style={{
-                                                backgroundColor:"#FFFFFF",
-                                                borderColor:"#000000",
-                                                borderWidth: 2,
-                                                borderRadius: 5,
-                                                alignContent:"flex-end"
-                                            }}/>
-                                            */}
-
+                                        
                                             {
-                                            showSourceTypeList ? 
-                                            (
-                                                <View style={{
+                                                GSC.showSourceTypeList ?
+                                                (
+                                                    <View 
+                                                    style={{
+                                                        elevation: 2,
+                                                        shadowRadius: 2,
+                                                        shadowOpacity: 0.5,
+                                                        shadowOffset:{width:0, height: 2},
+                                                        shadowColor: "#000000"
+                                                    }}>
+                                                        <FlatList
+                                                        data={GSC.SourceType_Selection}
+                                                        renderItem={ ({item}) => 
+                                                                <TouchableOpacity
+                                                                style={{
+                                                                    backgroundColor:"#f495d1",
+                                                                    borderColor:"#000000",
+                                                                    borderWidth:1,
+                                                                    borderRadius: 5,
+                                                                }}
+                                                                onPress={() => GSC.hideList(item, "SourceType")}>
+                                                                    <Text>
+                                                                        {item}
+                                                                    </Text>
 
-                                                    elevation: 2,
-                                                    shadowRadius: 2,
-                                                    shadowOpacity: 0.5,
-                                                    shadowOffset:{width:0, height: 2},
-                                                    shadowColor: "#000000"
-                                                }}>
-                                                    <FlatList
-                                                    data={SourceType_Selection}
-                                                    renderItem={ ({item}) => 
-                                                            <TouchableOpacity
-                                                            style={{
-                                                                backgroundColor:"#f495d1",
-                                                                borderColor:"#000000",
-                                                                borderWidth:1,
-                                                                borderRadius: 5,
-                                                            }}
-                                                            onPress={() => hideList(item, "SourceType")}>
-                                                                <Text>
-                                                                    {item}
-                                                                </Text>
-
-                                                            </TouchableOpacity>
-                                                    }
-                                                    keyExtractor={item => item}
-                                                    />
-                                                </View>
-                                            ) : (
-                                            <View 
-                                            style={{
-                                                backgroundColor:"#FFFFFF",
-                                                borderColor:"#000000",
-                                                borderWidth: 2,
-                                                borderRadius: 5,
-                                                height: 40,
-                                            }}>
-                                                <Pressable 
-                                                style={{
-                                                    flexDirection: "row",
-                                                    flex: 1,
-                                                    justifyContent: "flex-end",
-                                                    alignItems: "center",
-                                                    padding: 7
-                                                }}
-                                                onPress={() => setShowSourceTypeList(true)}>
-                                                    <Text>
-                                                        {storedSourceType}
-                                                    </Text>
-                                                </Pressable>
-                                            </View>)
-                                        }
+                                                                </TouchableOpacity>
+                                                        }
+                                                        keyExtractor={item => item}
+                                                        />
+                                                    </View>
+                                                ) : (
+                                                    <View 
+                                                    style={{
+                                                        backgroundColor:"#FFFFFF",
+                                                        borderColor:"#000000",
+                                                        borderWidth: 2,
+                                                        borderRadius: 5,
+                                                        height: 40,
+                                                    }}>
+                                                        <Pressable 
+                                                        style={{
+                                                            flexDirection: "row",
+                                                            flex: 1,
+                                                            justifyContent: "flex-end",
+                                                            alignItems: "center",
+                                                            padding: 7
+                                                        }}
+                                                        onPress={() => GSC.setShowSourceTypeList(true)}>
+                                                            <Text>
+                                                                {GSC.storedSourceType}
+                                                            </Text>
+                                                        </Pressable>
+                                                    </View>
+                                                )
+                                            }
 
 
 
@@ -691,7 +863,7 @@ export default function GachaScreen(){
                                                 paddingHorizontal: 8,
                                                 fontSize: 20,
                                                 //backgroundColor:"#ff0000",
-                                            
+                                                color:"white"
                                                 }}>OBTAINED</Text>
                                                 <Checkbox
                                                 style={{
@@ -701,8 +873,8 @@ export default function GachaScreen(){
                                                     borderWidth: 2,
                                                     borderRadius: 5
                                                 }}
-                                                value={wasObtained}
-                                                onValueChange={setWasObtained}/>
+                                                value={GSC.wasObtained}
+                                                onValueChange={GSC.setWasObtained}/>
                                             </View>
 
                                             {/*Preset*/}
@@ -716,6 +888,7 @@ export default function GachaScreen(){
                                                 <Text style={{
                                                 paddingHorizontal: 8,
                                                 fontSize: 20,
+                                                color:"white"
                                                 //backgroundColor:"#00ff00"
                                                 }}>PRESET</Text>
 
@@ -726,8 +899,8 @@ export default function GachaScreen(){
                                                     borderWidth: 2,
                                                     borderRadius: 5
                                                 }}
-                                                value={isPreset}
-                                                onValueChange={setIsPreset}/>
+                                                value={GSC.isPreset}
+                                                onValueChange={GSC.setIsPreset}/>
 
                                             </View>
                                         </View>{/*Amount Obtained Preset Mini Menu*/}
@@ -749,9 +922,11 @@ export default function GachaScreen(){
                                             borderColor:"#000000",
                                             borderWidth: 2,
                                             borderRadius: 5,
-                                            padding: 5
+                                            padding: 5,
+                                            alignItems:"center",
+                                            justifyContent:"center"
                                         }}
-                                        onPress={()=> alert("Back")}>
+                                        onPress={()=> GSC.setIsAddSourceModalVisible(false)}>
                                             <Text style={{
                                                 fontSize: 20
                                             }}> BACK </Text>
@@ -761,7 +936,10 @@ export default function GachaScreen(){
                                             backgroundColor:"#FFFFFF",
                                             borderColor:"#000000",
                                             borderWidth: 2,
-                                            borderRadius: 5
+                                            borderRadius: 5,
+                                            padding: 5,
+                                            alignItems:"center",
+                                            justifyContent:"center"
                                         }}
                                         onPress={()=> alert("Next")}>
                                             <Text style={{
