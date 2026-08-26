@@ -12,14 +12,17 @@ import DateTimePicker, {DateTimePickerChangeEvent} from "@react-native-community
 
 //Types------------------------------
 
+export const Source_SaveData_Address = "SourceList"
+
 export type Source={
-    name: "",
-    timeframe: "",
-    from?: Date,
-    to?: Date,
+    id: string,
+    name: string,
+    timeframe: string,
+    from?: string,
+    to?: string,
     CurrencyType: Currency,
-    amount: 0,
-    ObtainType: string,
+    amount: number,
+    retrievalType: string,
     obtained: boolean,
     preset: boolean 
 }
@@ -27,7 +30,7 @@ export type Source={
 export type Currency={
     CurrencyName: string,
     //visual?: Image,
-    visualLink: string,
+    visualLink: number,
     value: number, 
     isBatch: boolean,
     realWorldValue: number
@@ -46,14 +49,16 @@ export type Banner={
 }
 
 export type Rank={
-    name: String
+    name: string
     visual?: Image
 }
 
 //visibility flag for AddSourceModal
 type ASMProps = {
     visible: boolean; //boolean variable
+    addSource: (S : Source) => void // function that takes in a source and returns void
     onClose: () => void; //function that returns void
+
 }
 
 //Arrays------------------------------
@@ -137,7 +142,7 @@ const handleAddSource = async () => {
 //a batch of variables combined and casted as
 //the type ASMProps
 
-export function AddSourceModal( {visible, onClose} : ASMProps){
+export function AddSourceModal( {visible, addSource, onClose} : ASMProps){
 //export default function AddSourceModal( visible : boolean, onClose : () => void){
 
     //Variables------------------------------
@@ -148,8 +153,8 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
     const [showCurrencyList, setShowCurrencyList] = useState(false);
 
     //use these to store the values in the AddSource Menu
-    const [storedTimeFrame, setStoredTimeFrame] = useState(null);
-    const [storedSourceType, setStoredSourceType] = useState(null);
+    const [storedTimeFrame, setStoredTimeFrame] = useState("");
+    const [storedSourceType, setStoredSourceType] = useState("");
     const [storedCurrency, setStoredCurrency] = useState<Currency>(
         {                    
             CurrencyName:"Polychromes",
@@ -159,10 +164,10 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
             realWorldValue: 0.0165
         }
     );
-    const [storedImageLink, setStoredImageLink] = useState("");
+    //const [storedImageLink, setStoredImageLink] = useState("");
     const [sourceName, setSourceName] = useState('');
 
-    const [storedAmount, setStoredAmount] = useState('');
+    const [storedAmount, setStoredAmount] = useState("");
     const [wasObtained, setWasObtained] = useState(false);
     const [isPreset, setIsPreset] = useState(false);
 
@@ -170,8 +175,8 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
     const [currStore, setCurrStore] = useState('');
 
 
-    const [fromDate, setFromDate] = useState<Date>();
-    const [toDate, setToDate] = useState<Date>();
+    const [fromDate, setFromDate] = useState<Date>(new Date());
+    const [toDate, setToDate] = useState<Date>(new Date());
     const [showFromDatePicker, setShowFromDatePicker] = useState(false);
     const [showToDatePicker, setShowToDatePicker] = useState(false);
 
@@ -179,7 +184,7 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
     const handleDateChange = useCallback(
         (event: DateTimePickerChangeEvent, selectedDate : Date, type: string) => {
                 
-            var currentDate = new Date();
+            let currentDate = new Date();
             console.log(event)
 
             switch(type){
@@ -234,8 +239,51 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
                     break;
             }
 
-        }, [currList, currStore]
+        }, [currList, currStore, storedCurrency]
     );
+
+    const ClearModal = () => {
+        setSourceName("");
+        setStoredAmount("");
+        setWasObtained(false);
+        setIsPreset(false);
+        setFromDate(new Date());
+        setToDate(new Date());
+        setStoredTimeFrame("");
+        setStoredSourceType("");
+    }
+
+    const createSource = () => {
+
+        let sA = Number( storedAmount.replace(/[^0-9]/g, '') )
+
+        if(isNaN(sA)){
+            alert("Enter a valid number for \"Amount\".")
+        }
+        
+        if(sA < 0){
+            alert("Enter a number greater than 0 for \"Amount\".")
+        }
+
+        const newSource = {
+            id: new Date().toLocaleDateString() + new Date().toLocaleTimeString() + Math.random,
+            name: sourceName,
+            timeframe: storedTimeFrame,
+            from: fromDate.toLocaleDateString(),
+            to: toDate.toLocaleDateString(),
+            CurrencyType: storedCurrency,
+            amount: sA,
+            retrievalType: storedSourceType,
+            obtained: wasObtained,
+            preset: isPreset
+        } as Source;
+
+        console.log(newSource)
+
+        return newSource;
+
+
+    }
 
     return(
                 <Modal
@@ -451,7 +499,7 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
                                             >
                                                 {/*Text in Button*/}
                                                 <Text style={{fontSize:16, backgroundColor: "green"}}>
-                                                    {fromDate?.toDateString()}
+                                                    {fromDate.toLocaleDateString()}
                                                 </Text>
 
                                                 {/*Calendar Visual*/}
@@ -669,6 +717,7 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
                                                         placeholder="0"
                                                         returnKeyType="done" //What does this mean?
                                                         onSubmitEditing={()=>alert("Amount Set")}
+                                                        keyboardType="number-pad"
                                                         style={{
                                                         flex: 1,
                                                         //width: "100%",
@@ -853,7 +902,12 @@ export function AddSourceModal( {visible, onClose} : ASMProps){
                                             alignItems:"center",
                                             justifyContent:"center"
                                         }}
-                                        onPress={()=> alert("Next")}>
+                                        onPress={()=> {
+                                            alert("Entered");
+                                            addSource(createSource());
+                                            ClearModal();
+                                            onClose();
+                                            }}>
                                             <Text style={{
                                                 fontSize: 20
                                             }}> ENTER </Text>

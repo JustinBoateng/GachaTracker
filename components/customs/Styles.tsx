@@ -95,7 +95,7 @@ export const GSS = StyleSheet.create({
 
         flexDirection:"row",
         width:"90%",
-        height: 40,
+        height: 30,
         justifyContent: "space-between",
         alignItems: "center",
 
@@ -117,7 +117,7 @@ export const GSS = StyleSheet.create({
 
         flexDirection:"row",
         width:"90%",
-        height: 80,
+        height: 60,
 
         justifyContent: "space-between",
         
@@ -150,14 +150,16 @@ export const GSS = StyleSheet.create({
         width:"90%",
         height: "120%",
 
-        borderRadius: 30,
+        minHeight: 350,
+
+        borderRadius: 20,
         overflow: "hidden"
         //marginBottom: 10
     },
 
     AddSource:{
         backgroundColor:"#000000",
-        flex:1,
+        height: "10%",
         justifyContent: "flex-end",
         
         alignItems: "flex-end",
@@ -166,7 +168,7 @@ export const GSS = StyleSheet.create({
 
     SourceList:{
         backgroundColor:"#ffffff",
-        flex:12,
+        height: "93%",
         justifyContent: "flex-start",
         
         alignItems: "center",
