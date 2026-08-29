@@ -171,6 +171,7 @@ export const GSS = StyleSheet.create({
         height: "93%",
         justifyContent: "flex-start",
         
+        
         alignItems: "center",
         alignSelf: "stretch"
 

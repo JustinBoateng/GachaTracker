@@ -7,12 +7,22 @@ import {Checkbox} from "expo-checkbox"
 
 import {GSS} from '@/components/customs/Styles';
 
-import DateTimePicker, {DateTimePickerChangeEvent} from "@react-native-community/datetimepicker"
+import DateTimePicker, {DateTimePickerEvent} from "@react-native-community/datetimepicker"
 
 
 //Types------------------------------
 
 export const Source_SaveData_Address = "SourceList"
+export const Currency_SaveData_Address = "Currency"
+
+export type RetrievalType = "Gift" | "Free" | "Paid";
+
+export const SourceColors : Record <RetrievalType, string>= {
+    "Gift" : "#5d98fc",
+    "Free" : "#1dc03b",
+    "Paid" : "#e8495e",
+}
+
 
 export type Source={
     id: string,
@@ -22,7 +32,7 @@ export type Source={
     to?: string,
     CurrencyType: Currency,
     amount: number,
-    retrievalType: string,
+    retrievalType: RetrievalType,
     obtained: boolean,
     preset: boolean 
 }
@@ -58,7 +68,18 @@ type ASMProps = {
     visible: boolean; //boolean variable
     addSource: (S : Source) => void // function that takes in a source and returns void
     onClose: () => void; //function that returns void
+}
 
+type SDMProps = {
+    visible: boolean; //boolean variable
+    SDetails: Source // Source Reference
+    onClose: () => void; //function that returns void
+}
+
+type ECMProps = {
+    visible: boolean; //boolean variable
+    calculation: (C : number) => void // a function that takes in a number
+    onClose: () => void; //function that returns void
 }
 
 //Arrays------------------------------
@@ -86,7 +107,7 @@ const appImages = {
 
 
 //Array of currencies
-const Base_Currencies : Currency[] = [
+export const Base_Currencies : Currency[] = [
     {
         CurrencyName:"Polychromes",
         visualLink: appImages.Polychromes,
@@ -182,7 +203,7 @@ export function AddSourceModal( {visible, addSource, onClose} : ASMProps){
 
 
     const handleDateChange = useCallback(
-        (event: DateTimePickerChangeEvent, selectedDate : Date, type: string) => {
+        (event: DateTimePickerEvent, type: string, selectedDate? : Date, ) => {
                 
             let currentDate = new Date();
             console.log(event)
@@ -509,9 +530,9 @@ export function AddSourceModal( {visible, addSource, onClose} : ASMProps){
                                                     <DateTimePicker
                                                     mode={'date'}
                                                     value={fromDate || new Date()} //choose from the date constant or the current date
-                                                    onValueChange={
+                                                    onChange={
                                                         (event, selectedDate) =>
-                                                        {handleDateChange(event, selectedDate, "from")}}
+                                                        {handleDateChange(event,  "from", selectedDate)}}
                                                     /> 
                                                     :
                                                     (null)
@@ -559,7 +580,7 @@ export function AddSourceModal( {visible, addSource, onClose} : ASMProps){
                                                     <DateTimePicker
                                                     mode={'date'}
                                                     value={toDate || new Date()} //choose from the date constant or the current date
-                                                    onValueChange={(event, selectedDate) => {handleDateChange(event,selectedDate, "to")}}
+                                                    onChange={(event, selectedDate) => {handleDateChange(event, "to", selectedDate)}}
                                                     /> 
                                                     :
                                                     (null)
@@ -928,6 +949,179 @@ export function AddSourceModal( {visible, addSource, onClose} : ASMProps){
 
 
 
+}
+
+export function SourceDetailsModal ({visible, SDetails, onClose} : SDMProps){
+    return(
+        <Modal
+        visible= {visible}
+        transparent
+        animationType="slide"
+        onRequestClose={onClose}
+        >
+            {/*Transparent Background*/}
+            <Pressable
+            style={{
+                flex: 1,
+                justifyContent: 'flex-end',
+                backgroundColor:"rgba(14, 48, 108, 0.79)"
+            }}
+            onPress={onClose}>
+
+                {/*View to host the actual information*/}
+                <KeyboardAvoidingView
+                behavior="padding"
+                style={{
+                    height:"80%",
+                    maxHeight:"80%",
+                    backgroundColor:"#5ef7c1"
+
+                }}>
+                    {/*Actual Modal Menu*/}
+                    <Pressable
+                    onPress={(event) => event.stopPropagation()}
+                    style={{
+                        flex: 1
+                    }}    
+                    >
+
+                        <Text>{SDetails.name}</Text>
+                        <Text>{SDetails.timeframe}</Text>
+                        <Text>{SDetails.from}</Text>
+                        <Text>{SDetails.to}</Text>
+                        <Text>{SDetails.CurrencyType.CurrencyName}</Text>
+                        <Text>{SDetails.CurrencyType.value}</Text>
+                        <Text>{SDetails.amount}</Text>
+                        <Text>{SDetails.obtained}</Text>
+                        <Text>{SDetails.preset}</Text>
+
+                        <View
+                        style={{
+                            flexDirection: "row"
+                        }}>
+                            <Pressable
+                            onPress={onClose}>
+                                <Text> Back </Text>
+                            </Pressable>
+                            
+
+                            <Pressable>
+                                <Text> Obtained </Text>
+                            </Pressable>
+                        </View>
+
+                    </Pressable>
+                </KeyboardAvoidingView>
+            </Pressable>
+
+        </Modal>
+    );
+}
+
+export function EnterCurrencyModal({visible, calculation, onClose} : ECMProps){
+    
+    const [currencyAmount, setCurrencyAmount] = useState("");
+    const [pullAmount, setPullAmount] = useState("");
+
+    return(
+        <Modal
+        visible={visible}
+        transparent
+        animationType="slide"
+        onRequestClose={onClose}
+        >
+            <Pressable
+            style={{
+                flex: 1,
+                justifyContent: 'flex-end',
+                backgroundColor:"rgba(14, 48, 108, 0.79)"
+            }}>
+                
+                <KeyboardAvoidingView
+                style={{
+                    height:"80%",
+                    maxHeight:"80%"
+                }}>
+                    <Pressable
+                    onPress={(event => event.stopPropagation())}
+                    style={{ flex:1 }}>
+                        
+                        <View style={{flexDirection:"row"}}>
+                            <Text>
+                                Currency:
+                            </Text>
+                            <TextInput
+                            value={currencyAmount}
+                            onChangeText={setCurrencyAmount}
+                            placeholder="Currency"
+                            returnKeyType="done"
+                            onSubmitEditing={() => alert("Currency Set")}
+                            keyboardType="number-pad"
+                            style={{
+                                backgroundColor:"#FFFFFF",
+                                borderColor:"#000000",
+                                borderWidth: 2,
+                                borderRadius: 5
+                            }}
+                            />
+                        </View>
+
+                        <View style={{flexDirection:"row"}}>
+                            <Text>
+                                Pulls:
+                            </Text>
+                            <TextInput
+                            value={pullAmount}
+                            onChangeText={setPullAmount}
+                            placeholder="Pulls (Enter 0 if you do not purchase a different currency specifically for pulls"
+                            returnKeyType="done"
+                            onSubmitEditing={() => alert("Currency Set")}
+                            keyboardType="number-pad"
+                            style={{
+                                backgroundColor:"#FFFFFF",
+                                borderColor:"#000000",
+                                borderWidth: 2,
+                                borderRadius: 5
+                            }}
+                            />                                
+                        </View>
+
+                        <View style={{
+                            flexDirection:"row"
+                        }}>
+
+                            <Pressable
+                            onPress={onClose}>
+                                <Text> Back </Text>
+                            </Pressable>
+                            
+
+                            <Pressable
+                            onPress={() => {
+                                //Do the calculations for the currency and pulls
+                                const cA = Number(pullAmount.replace(/[^0-9]/g, '')) * 160 + Number(currencyAmount.replace(/[^0-9]/g, ''));
+                                //setCurrencyAmount(
+                                //    (Number(pullAmount) * 160 + Number(currencyAmount)).toString()
+                                //);
+
+                                //convert the string into a number
+                                //and return it back
+                                calculation(cA);
+
+                                //close the modal
+                                onClose();
+                            }}>
+                                <Text> Submit </Text>
+                            </Pressable>
+
+                        </View>    
+
+                    </Pressable>
+                </KeyboardAvoidingView>
+            </Pressable>
+        </Modal>
+
+    );
 }
 
 export function BannerPlate(){
